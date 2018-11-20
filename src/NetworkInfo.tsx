@@ -44,7 +44,7 @@ export default class NetworkInfo extends React.Component<{}, INetworkInfoState> 
   private getNetworkStatus(connection: any): NetworkStatus {
     const { rtt, downlink } = connection;
 
-    if (rtt === 0 && downlink === 0) {
+    if (rtt === 0 || downlink === 0) {
       return NetworkStatus.Offline;
     } else if (rtt > 1000 || downlink < 1) {
       return NetworkStatus.LowBandwidth;
