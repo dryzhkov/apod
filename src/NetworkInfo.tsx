@@ -11,6 +11,8 @@ enum NetworkStatus {
   Online
 }
 export default class NetworkInfo extends React.Component<{}, INetworkInfoState> {
+  private readonly LOW_BANDWIDTH_LIMIT: number = 0.512; // 512 kbps
+
   constructor(props: {}) {
     super(props);
     const connection = (navigator as any).connection;
@@ -24,10 +26,10 @@ export default class NetworkInfo extends React.Component<{}, INetworkInfoState> 
   }
 
   public render() {
-    const netStatus = this.getNetworkStatus(this.state.connection);
+    const { networkStatus } = this.state;
     return (
-      <div className={netStatus === NetworkStatus.Online ? "success" : (netStatus === NetworkStatus.LowBandwidth ? "warning" : "error")}>
-        Network Info: 
+      <div className={networkStatus === NetworkStatus.Online ? "success" : (networkStatus === NetworkStatus.LowBandwidth ? "warning" : "error")}>
+        Current Status: {NetworkStatus[networkStatus]} <br/>
         Downlink: {this.state.connection.downlink},
         RTT: {this.state.connection.rtt},
         EffectiveType: {this.state.connection.effectiveType}
@@ -37,16 +39,21 @@ export default class NetworkInfo extends React.Component<{}, INetworkInfoState> 
 
   private updateConnectionStatus() {
     this.setState({
-      connection: (navigator as any).connection
+      connection: (navigator as any).connection,
+      networkStatus:  this.getNetworkStatus(this.state.connection)
     });
   }
 
   private getNetworkStatus(connection: any): NetworkStatus {
-    const { rtt, downlink } = connection;
+    const { downlink } = connection;
 
-    if (rtt === 0 || downlink === 0) {
+    if (!navigator.onLine) {
       return NetworkStatus.Offline;
-    } else if (rtt > 1000 || downlink < 1) {
+    }
+
+    if (downlink === 0) {
+      return NetworkStatus.Offline;
+    } else if (downlink < this.LOW_BANDWIDTH_LIMIT) {
       return NetworkStatus.LowBandwidth;
     } else {
       return NetworkStatus.Online;

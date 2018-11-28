@@ -22,7 +22,7 @@ class App extends React.Component {
         </header>
         <NetworkInfo />
         <AstronomyViewer />
-        <button onClick={this.unregisterSW}>Unregister service worker</button>
+        {/* <button onClick={this.unregisterSW}>Unregister service worker</button> */}
       </div>
     );
   }
